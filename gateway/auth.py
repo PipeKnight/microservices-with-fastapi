@@ -24,8 +24,7 @@ def generate_access_token(
         'exp': expire,
     }
 
-    encoded_jwt = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    return jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
 
 
 def decode_access_token(authorization: str = None):
@@ -34,8 +33,7 @@ def decode_access_token(authorization: str = None):
 
     token = authorization.replace('Bearer ', '')
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
-        return payload
+        return jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
     except jwt.exceptions.ExpiredSignatureError:
         raise AuthTokenExpired('Auth token is expired.')
     except jwt.exceptions.DecodeError:
