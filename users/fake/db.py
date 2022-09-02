@@ -35,11 +35,12 @@ def insert_user(data: dict, hashed_password: str, created_by: int):
     except ValueError:
         pk = 1
 
-    data.update({
+    data |= {
         'id': pk,
         'hashed_password': hashed_password,
-        'created_by': created_by
-    })
+        'created_by': created_by,
+    }
+
 
     user_in_db = UserInDb(**data)
     users = list(map(lambda u: u.dict(), get_all_users()))

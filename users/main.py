@@ -25,14 +25,15 @@ async def login(form_data: UsernamePasswordForm):
             detail='User not found with this username.',
         )
 
-    verified = verify_password(form_data.password, user_in_db.hashed_password)
-    if not verified:
+    if verified := verify_password(
+        form_data.password, user_in_db.hashed_password
+    ):
+        return user_in_db
+    else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Password is wrong.',
         )
-
-    return user_in_db
 
 
 @app.post('/api/users', status_code=status.HTTP_201_CREATED)
@@ -64,21 +65,20 @@ async def create_user(user: UserForm,
 @app.get('/api/users', status_code=status.HTTP_200_OK)
 async def get_users(request: Request, response: Response,
                     request_user_id: str = Header(None)):
-    users = list(get_all_users())
-    return users
+    return list(get_all_users())
 
 
 @app.get('/api/users/{user_id}', status_code=status.HTTP_200_OK)
 async def get_user(user_id: int, request: Request, response: Response,
                    request_user_id: str = Header(None)):
 
-    user_in_db = get_user_by_id(user_id)
-    if not user_in_db:
+    if user_in_db := get_user_by_id(user_id):
+        return user_in_db
+    else:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='User not found with this id.',
         )
-    return user_in_db
 
 
 @app.delete('/api/users/{user_id}', status_code=status.HTTP_204_NO_CONTENT)
@@ -91,13 +91,13 @@ async def delete_user(user_id: int, request: Request, response: Response,
             detail='You are not allowed to delete protected users.',
         )
 
-    user_in_db = get_user_by_id(user_id)
-    if not user_in_db:
+    if user_in_db := get_user_by_id(user_id):
+        delete_user_from_db(user_id)
+    else:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail='User not found with this id.',
         )
-    delete_user_from_db(user_id)
 
 
 @app.put('/api/users/{user_id}', status_code=status.HTTP_200_OK)
